@@ -23,17 +23,21 @@ export default {
     
     const chatId = message.chat.id;
     const threadId = message.message_thread_id;
-    
-    const moderationResponse = await handleModeration({
-      message,
-      env,
-      chatId,
-      threadId,
-      sendGroupMessage: sendMessage
-    });
-    
-    if (moderationResponse) {
-      return moderationResponse;
+
+    const moderationEnabled = String(env.ENABLE_MODERATION || "true").toLowerCase() !== "false";
+
+    if (moderationEnabled) {
+      const moderationResponse = await handleModeration({
+        message,
+        env,
+        chatId,
+        threadId,
+        sendGroupMessage: sendMessage
+      });
+      
+      if (moderationResponse) {
+        return moderationResponse;
+      }
     }
     
     if (!message.text) {
