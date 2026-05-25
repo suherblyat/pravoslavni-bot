@@ -1,0 +1,10 @@
+name = "telegram-auto-message2"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+ADMIN_CHAT_ID = "-1003860270266"
+ADMIN_THREAD_ID = "220"
+
+[observability]
+enabled = true
