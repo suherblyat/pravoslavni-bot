@@ -46,13 +46,25 @@ export default {
         return sendMessage(chatId, "⚠️ BOT_CHATS KV binding није подешен. Додај KV namespace са variable name BOT_CHATS.", threadId);
       }
 
+      if (!env.BOT_TOKEN) {
+        return sendMessage(chatId, "⚠️ BOT_TOKEN није подешен у Cloudflare variables/secrets. Broadcast не може да ради без токена, јер мора директно да позове Telegram API.", threadId);
+      }
+
       const body = text.replace(/^\/\S+\s*/u, "").trim();
       if (!body) {
         return sendMessage(chatId, "☦️ Употреба:\n<code>/broadcast порука коју шаљем свим сачуваним групама/чатовима</code>", threadId);
       }
 
       const result = await broadcastToKnownChats(env, body);
-      return sendMessage(chatId, `✅ Broadcast завршен.\n\nПослато: ${result.sent}\nНије успело: ${result.failed}\nУкупно познатих chat-ова: ${result.total}`, threadId);
+      const failedLines = result.errors.length
+        ? "\n\n<b>Грешке:</b>\n" + result.errors.map((item) => `• <code>${escapeHtml(item.chatId)}</code> ${escapeHtml(item.title)}: ${escapeHtml(item.error)}`).join("\n")
+        : "";
+
+      return sendMessage(
+        chatId,
+        `✅ Broadcast завршен.\n\nПослато: ${result.sent}\nНије успело: ${result.failed}\nУкупно познатих chat-ова: ${result.total}${failedLines}`,
+        threadId
+      );
     }
 
     return commandRouter.fetch(request, env, ctx);
@@ -93,6 +105,7 @@ async function broadcastToKnownChats(env, text) {
 
   let sent = 0;
   let failed = 0;
+  const errors = [];
 
   for (const chat of chats) {
     const result = await telegramApi(env, "sendMessage", {
@@ -102,11 +115,19 @@ async function broadcastToKnownChats(env, text) {
       disable_web_page_preview: true
     });
 
-    if (result.ok) sent += 1;
-    else failed += 1;
+    if (result.ok) {
+      sent += 1;
+    } else {
+      failed += 1;
+      errors.push({
+        chatId: chat.id,
+        title: chat.title || "unknown",
+        error: result.description || JSON.stringify(result)
+      });
+    }
   }
 
-  return { sent, failed, total: chats.length };
+  return { sent, failed, total: chats.length, errors: errors.slice(0, 10) };
 }
 
 async function telegramApi(env, method, body) {
