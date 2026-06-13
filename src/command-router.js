@@ -32,11 +32,7 @@ export default {
       const args = getCommandArgs(text);
 
       if (!args) {
-        return sendMessage(
-          chatId,
-          "📖 <b>Цитат из Светог Писма</b>\n\nЗа цитат унеси и место:\n<code>/свписмо Римљанима 2:14-15</code>\n<code>/svpismo Jovan 3:16</code>\n\nЗа дневна читања користи:\n<code>/читања</code>",
-          threadId
-        );
+        return originalWorker.fetch(request, env, ctx);
       }
 
       return handleBibleLookup({ chatId, threadId, args });
