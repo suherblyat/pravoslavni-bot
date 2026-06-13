@@ -28,11 +28,15 @@ export default {
       return originalWorker.fetch(jsonRequest(request, rewritten), env, ctx);
     }
 
-    if (isCommand(lower, ["/svpismo", "/свписмо"])) {
+    if (isCommand(lower, ["/stih", "/стих", "/citatpismo", "/цитатписмо"])) {
       const args = getCommandArgs(text);
 
       if (!args) {
-        return originalWorker.fetch(request, env, ctx);
+        return sendMessage(
+          chatId,
+          "📖 <b>Свето Писмо</b>\n\nЗа цитат унеси и место:\n<code>/стих Римљанима 2:14-15</code>\n<code>/stih Jovan 3:16</code>",
+          threadId
+        );
       }
 
       return handleBibleLookup({ chatId, threadId, args });
@@ -56,7 +60,7 @@ async function handleBibleLookup({ chatId, threadId, args }) {
   if (!parsed.ok) {
     return sendMessage(
       chatId,
-      "📖 <b>Свето Писмо</b>\n\nНе препознајем референцу. Пробај овако:\n<code>/свписмо Римљанима 2:14-15</code>\n<code>/svpismo Jovan 3:16</code>\n<code>/свписмо Пророк Осија 3:2</code>",
+      "📖 <b>Свето Писмо</b>\n\nНе препознајем референцу. Пробај овако:\n<code>/стих Римљанима 2:14-15</code>\n<code>/stih Jovan 3:16</code>\n<code>/стих Пророк Осија 3:2</code>",
       threadId
     );
   }
