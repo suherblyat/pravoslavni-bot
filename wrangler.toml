@@ -1,5 +1,5 @@
 name = 'pravoslavni-bot'
-main = "src/index.js"
+main = "src/broadcast-router.js"
 compatibility_date = "2025-01-01"
 
 [vars]
